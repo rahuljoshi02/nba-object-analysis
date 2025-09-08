@@ -1,9 +1,30 @@
-from ultralytics import YOLO
+from utils import read_video, save_video
+from trackers import PlayerTracker
+from drawers import (
+    PlayerTracksDrawer
+)
 
-model = YOLO("models/ball_detector_model.pt")
+def main():
+    # Read Video
+    video_frames = read_video("input_videos/video_1.mp4")
 
-results = model.track("input_videos/video_1.mp4", save=True)
-print(results)
-print("----------")
-for box in results[0].boxes:
-    print(box)
+    # Initialize Tracker
+    player_tracker = PlayerTracker("models/player_detector.pt")
+
+    # Run Tracks
+    player_tracks = player_tracker.get_object_tracks(video_frames,
+                                                     read_from_stub=True,
+                                                     stub_path="stubs/player_track_stubs.pkl")
+
+    # Draw Output
+    # Initialize Drawers
+    player_tracks_drawer = PlayerTracksDrawer()
+
+    #Draw Object Tracks
+    output_video_frames = player_tracks_drawer.draw(video_frames, player_tracks)
+
+    # Save Video
+    save_video(output_video_frames, "output_videos/output_video.avi")
+
+if __name__ == "__main__":
+    main()
