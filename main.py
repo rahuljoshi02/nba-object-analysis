@@ -3,14 +3,16 @@ from trackers import PlayerTracker, BallTracker
 from drawers import (
     PlayerTracksDrawer,
     BallTracksDrawer,
-    TeamBallControlDrawer
+    TeamBallControlDrawer,
+    PassInterceptionDrawer
 )
 from team_assigner import TeamAssigner
 from ball_acquisition import BallAcquisitionDetector
+from pass_and_interception_detector import PassAndInterceptionDetector
 
 def main():
     # Read Video
-    video_frames = read_video("input_videos/video_1.mp4")
+    video_frames = read_video("input_videos/video_2.mp4")
 
     # Initialize Tracker
     player_tracker = PlayerTracker("models/player_detector.pt")
@@ -43,11 +45,19 @@ def main():
     ball_acquisition_detector = BallAcquisitionDetector()
     ball_acquisition = ball_acquisition_detector. detect_ball_possession(player_tracks, ball_tracks)
 
+    # Detect Passes and Interceptions
+    pass_and_interception_detector = PassAndInterceptionDetector()
+    passes = pass_and_interception_detector.detect_passes(ball_acquisition, player_assignment)
+    interceptions = pass_and_interception_detector.detect_interceptions(ball_acquisition, player_assignment)
+
+    print(passes)
+
     # Draw Output
     # Initialize Drawers
     player_tracks_drawer = PlayerTracksDrawer()
     ball_tracks_drawer = BallTracksDrawer()
     team_ball_control_drawer = TeamBallControlDrawer()
+    pass_interception_drawer = PassInterceptionDrawer()
 
     # Draw Object Tracks
     output_video_frames = player_tracks_drawer.draw(video_frames,
@@ -61,6 +71,11 @@ def main():
     output_video_frames = team_ball_control_drawer.draw(output_video_frames,
                                                         player_assignment,
                                                         ball_acquisition)
+    
+    # Draw Passes and Interceptions
+    output_video_frames = pass_interception_drawer.draw(output_video_frames,
+                                                        passes,
+                                                        interceptions)
 
     # Save Video
     save_video(output_video_frames, "output_videos/output_video.avi")

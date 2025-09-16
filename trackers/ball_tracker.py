@@ -30,6 +30,7 @@ class BallTracker:
 
         for frame_num, detection in enumerate(detections):
             cls_names = detection.names
+            print("Frame", frame_num, "class names:", cls_names)
             cls_names_inv = {v:k for k,v in cls_names.items()}
 
             detection_supervision = sv.Detections.from_ultralytics(detection)

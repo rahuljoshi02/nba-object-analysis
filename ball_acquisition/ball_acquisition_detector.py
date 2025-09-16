@@ -75,7 +75,7 @@ class BallAcquisitionDetector:
             min_distance = self.find_minimum_distance_to_ball(ball_center, player_bbox)
 
             if containment > self.containment_threshold:
-                high_containment_players.append((player_id, containment))
+                high_containment_players.append((player_id, min_distance))
             else:
                 regular_distance_players.append((player_id, min_distance))
 
